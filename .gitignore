@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+
+# Data
+data/raw/*
+data/interim/*
+data/processed/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Splits and reports may be committed if desired
+# Comment out later if needed
+
+# Checkpoints
+checkpoints/*
+
+# Logs
+logs/*
+
+# Outputs
+outputs/generated_midis/*
+outputs/figures/*
+outputs/reports/*
+
+# Pytest
+.pytest_cache/
