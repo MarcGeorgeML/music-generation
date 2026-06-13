@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *.so
 
+# vscode
+.vscode/
+
 # Virtual environments
 .venv/
 
@@ -30,3 +33,6 @@ outputs/reports/*
 
 # Pytest
 .pytest_cache/
+
+# Build metadata
+*.egg-info/
