@@ -100,9 +100,10 @@ class GenreMetadataExtractor:
         scores = {genre: 0 for genre in GENRE_TAGS}
         for tag in map(str.lower, tags):
             for genre, keywords in GENRE_TAGS.items():
-                for keyword in keywords:
-                    if keyword in tag:
-                        scores[genre] += 1
+                scores[genre] += sum(
+                    keyword in tag
+                    for keyword in keywords
+                )
         return scores
 
 
