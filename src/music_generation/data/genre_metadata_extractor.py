@@ -8,65 +8,56 @@ import pandas as pd
 import h5py
 
 GENRE_TAGS = {
-    "classical": {
-        "classical",
-        "baroque",
-        "romantic",
-        "concerto",
-        "orchestral",
-        "symphony",
-        "opera",
-        "chamber music",
+    "rock": {
+        "rock",
+        "classic rock",
+        "alternative rock",
+        "hard rock",
+        "folk rock",
+        "indie rock",
+        "progressive rock",
+        "punk",
+        "punk rock",
+        "new wave",
+        "soft rock",
+        "pop rock",
+    },
+    "pop": {
+        "pop",
+        "europop",
+        "synthpop",
+        "dance pop",
+        "teen pop",
+        "power pop",
+        "indie pop",
+    },
+    "electronic": {
+        "electronic",
+        "electro",
+        "house",
+        "techno",
+        "trance",
+        "electronica",
+        "downtempo",
+        "ambient",
     },
     "jazz": {
         "jazz",
         "acid jazz",
-        "future jazz",
         "smooth jazz",
         "latin jazz",
+        "bebop",
+        "fusion",
         "jazz fusion",
         "soul jazz",
-        "nu jazz",
-        "bebop",
-        "swing",
-        "fusion",
     },
-    "pop": {
-        "pop",
-        "dance pop",
-        "teen pop",
-        "europop",
-        "latin pop",
-        "country pop",
-        "indie pop",
-        "power pop",
-        "british pop",
-        "synthpop",
-        "pop rock",
-        "pop punk",
-    },
-    "rock": {
-        "rock",
-        "classic rock",
-        "hard rock",
-        "alternative rock",
-        "punk rock",
-        "punk",
-        "folk rock",
-        "progressive rock",
-        "garage rock",
-        "southern rock",
-        "country rock",
-        "blues-rock",
-        "rockabilly",
-        "art rock",
-        "psychedelic rock",
-        "instrumental rock",
-        "indie rock",
-        "new wave",
+    "hip_hop": {
+        "hip hop",
+        "rap",
+        "rnb",
+        "hip-hop",
     },
 }
-
 
 @dataclass(slots=True)
 class TrackGenreMetadata:
@@ -88,9 +79,18 @@ class MidiGenreRecord:
 
 class GenreMetadataExtractor:
     """
-    Extract genres from LMD-Matched HDF5 metadata.
+    Extract normalized genres from LMD-Matched metadata.
+
+    Supported genres:
+
+        - rock
+        - pop
+        - electronic
+        - jazz
+        - hip_hop
 
     Genre source priority:
+
         1. MusicBrainz tags
         2. Artist terms
     """
@@ -205,6 +205,7 @@ class GenreMetadataExtractor:
             for track_id, h5_path in self.find_track_ids(h5_root)
             if track_id in valid_track_ids
         ]
+        print(f"Valid tracks: {len(track_ids):,}")
         if limit is not None:
             track_ids = track_ids[:limit]
         for track_id, h5_path in tqdm(track_ids, desc="Scanning tracks", unit="track"):

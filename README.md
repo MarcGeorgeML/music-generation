@@ -122,10 +122,11 @@ Lakh MIDI provides the best balance between size, genre diversity, and practical
 
 Use four genres:
 
-* Classical
+* Hip-Hop
 * Jazz
 * Pop
 * Rock
+* Electronic
 
 ## Why This Was Chosen
 

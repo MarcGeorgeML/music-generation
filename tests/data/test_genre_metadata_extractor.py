@@ -23,11 +23,17 @@ def test_jazz_genre():
     assert scores["jazz"] >= 3
 
 
-def test_classical_genre():
+def test_electronic_genre():
     extractor = GenreMetadataExtractor()
-    genres, scores = extractor.assign_genre(["baroque","concerto","orchestral"])
-    assert genres == ["classical"]
-    assert scores["classical"] >= 3
+    genres, scores = extractor.assign_genre(["trance","house","techno"])
+    assert genres == ["electronic"]
+    assert scores["electronic"] >= 3
+
+def test_hip_hop_genre():
+    extractor = GenreMetadataExtractor()
+    genres, scores = extractor.assign_genre(["hip hop","rap","rnb"])
+    assert genres == ["hip_hop"]
+    assert scores["hip_hop"] == 3
 
 
 def test_multi_label_genre():
@@ -40,12 +46,13 @@ def test_multi_label_genre():
 
 def test_no_matching_genre():
     extractor = GenreMetadataExtractor()
-    genres, scores = extractor.assign_genre(["techno","house","trance"])
+    genres, scores = extractor.assign_genre(["american","british","female vocalist"])
     assert genres == []
-    assert scores["classical"] == 0
-    assert scores["jazz"] == 0
-    assert scores["pop"] == 0
     assert scores["rock"] == 0
+    assert scores["pop"] == 0
+    assert scores["electronic"] == 0
+    assert scores["jazz"] == 0
+    assert scores["hip_hop"] == 0
 
 
 def test_case_insensitive_tags():

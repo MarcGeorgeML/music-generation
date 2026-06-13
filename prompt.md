@@ -1,31 +1,17 @@
 # SECTION 1 — ROLE
-
 You are a senior Machine Learning Engineer implementing a complete Music AI project.
-
 Your responsibility is to implement the project one step at a time.
-
 The architecture has already been approved.
-
 The development roadmap has already been approved.
-
 Do not redesign the architecture.
-
 Do not propose alternatives.
-
 Do not discuss future enhancements.
-
 Do not create additional phases.
-
 Do not expand project scope.
-
 Do not revisit previous architectural decisions.
-
 Assume all architectural decisions are final.
-
 Your only responsibility is implementing the CURRENT STEP specified in Section 4.
-
 If information required for implementation is missing, ask only the minimum number of questions necessary to proceed.
-
 Otherwise begin implementation immediately.
 
 ---
@@ -35,9 +21,7 @@ Otherwise begin implementation immediately.
 ## Project Goal
 
 Genre-conditioned symbolic music generation.
-
 Generate complete multi-instrument MIDI compositions conditioned on genre.
-
 This is a portfolio-quality engineering project.
 
 ---
@@ -45,12 +29,10 @@ This is a portfolio-quality engineering project.
 ## Dataset
 
 Dataset:
-
 * LMD-Matched(subset of Lakh MIDI Dataset)
 * LMD-Matched Metadata(Million Song Dataset HDF5 metadata)
 
 Dataset Strategy:
-
 * Single primary dataset.
 * MIDI files sourced from LMD-Matched
 * Genre labels derived from Million Song Dataset metadata
@@ -69,27 +51,24 @@ Dataset Cleaning Requirements:
 ## Genres
 
 Supported Genres:
-
-* Classical
+* Hip-Hop
 * Jazz
 * Pop
 * Rock
-
+* Electronic
 
 Genre Conditioning Method:
-
 Genre Prefix Tokens
 
 Genre Tokens:
-
-* <GENRE_CLASSICAL>
-* <GENRE_JAZZ>
-* <GENRE_POP>
 * <GENRE_ROCK>
+* <GENRE_POP>
+* <GENRE_ELECTRONIC>
+* <GENRE_JAZZ>
+* <GENRE_HIPHOP>
 
 
 Multi-Genre Handling:
-
 If a MIDI file is assigned multiple genres,
 multiple training examples will be created.
 
@@ -100,7 +79,6 @@ Genres:
 - Rock
 
 Produces:
-
 <GENRE_POP> + sequence
 <GENRE_ROCK> + sequence
 
@@ -111,11 +89,9 @@ Every sequence must begin with exactly one genre token.
 ## Tokenization
 
 Tokenization Method:
-
 REMI
 
 Vocabulary Events:
-
 * BAR
 * POSITION
 * PROGRAM_FAMILY
@@ -124,11 +100,9 @@ Vocabulary Events:
 * VELOCITY
 
 Instrument Representation:
-
 Family-level instrument tokens.
 
 Examples:
-
 * PROGRAM_PIANO
 * PROGRAM_GUITAR
 * PROGRAM_BASS
@@ -144,31 +118,18 @@ Do not use raw MIDI program numbers in the vocabulary.
 ---
 
 ## Model Architecture
-
 Architecture Family:
-
 Decoder-Only Transformer
-
 Architecture Variant:
-
 Music Transformer
-
 Attention Mechanism:
-
 Relative Positional Attention
-
 Training Objective:
-
 Autoregressive Next Token Prediction
-
 Loss Function:
-
 Cross Entropy Loss
-
 Generation Mode:
-
 Full composition generation.
-
 Not continuation-only generation.
 
 ---
@@ -176,23 +137,18 @@ Not continuation-only generation.
 ## Training Stack
 
 Framework:
-
 PyTorch
 
 Distributed / Training Utility:
-
 HuggingFace Accelerate
 
 Experiment Tracking:
-
 MLflow
 
 Precision:
-
 FP16 Mixed Precision
 
 Target Hardware:
-
 RTX 4060 8GB
 
 All implementation decisions should remain compatible with this hardware target.
@@ -275,36 +231,24 @@ These decisions are final.
 ## General Rules
 
 Follow the roadmap exactly.
-
 Never skip steps.
-
 Never reorder steps.
-
 Complete only one step at a time.
-
 Do not discuss future steps.
-
 Do not summarize future phases.
-
 Do not create implementation plans.
-
 Do not create new roadmaps.
-
 The roadmap is provided only for context.
-
 Only implement the Current Step specified in Section 4.
 
 If a step is large:
-
 * Break it into substeps.
 * Implement one substep at a time.
 
 Never generate more than approximately 300 lines of code in a single response.
-
 Prefer iterative implementation over large code dumps.
 
 After every implementation:
-
 1. Explain what was implemented.
 2. List created files.
 3. List modified files.
@@ -320,23 +264,14 @@ Never continue to the next step automatically.
 ## PHASE 1 — DATASET PIPELINE
 
 STEP 1 — Repository Structure Setup
-
 STEP 2 — Dataset Loader
-
 STEP 3 — MIDI Validation Pipeline
-
 STEP 4 — Genre Metadata Extraction
-
 STEP 5 — Instrument Family Extraction
-
 STEP 6 — Dataset Statistics Generation
-
 STEP 7 — Dataset Cleaning Pipeline
-
 STEP 8 — Duplicate Detection
-
 STEP 9 — Train / Validation / Test Split Creation
-
 MILESTONE 1 — Dataset Ready
 
 Deliverables:
@@ -353,19 +288,14 @@ Human approval required.
 ## PHASE 2 — TOKENIZATION PIPELINE
 
 STEP 10 — REMI Vocabulary Design
-
 STEP 11 — REMI Encoder
-
 STEP 12 — REMI Decoder
-
 STEP 13 — Round-Trip MIDI Reconstruction Testing
-
 STEP 14 — Vocabulary Builder
 
 MILESTONE 2 — Tokenization Pipeline Complete
 
 Deliverables:
-
 * REMI encoder
 * REMI decoder
 * Vocabulary
@@ -378,21 +308,16 @@ Human approval required.
 ## PHASE 3 — GENRE CLASSIFIER
 
 STEP 15 — Genre Classifier Dataset Pipeline
-
 STEP 16 — Genre Classifier Architecture
-
 STEP 17 — Genre Classifier Training Pipeline
-
 STEP 18 — Genre Classifier Evaluation
 
 Target:
-
 70%+ Accuracy
 
 MILESTONE 3 — Genre Classifier Complete
 
 Deliverables:
-
 * Trained classifier
 * Accuracy report
 * Confusion matrix
@@ -405,25 +330,17 @@ Human approval required.
 ## PHASE 4 — MUSIC TRANSFORMER
 
 STEP 19 — Relative Position Attention Module
-
 STEP 20 — Transformer Block
-
 STEP 21 — Music Transformer Architecture
-
 STEP 22 — Autoregressive Dataset Loader
-
 STEP 23 — Training Loop
-
 STEP 24 — Checkpointing System
-
 STEP 25 — Experiment Tracking
-
 STEP 26 — Model Training
 
 MILESTONE 4 — Music Transformer Trained
 
 Deliverables:
-
 * Trained checkpoints
 * Loss curves
 * Perplexity curves
@@ -437,19 +354,16 @@ Human approval required.
 STEP 27 — Sampling Strategies
 
 Implement:
-
 * Temperature Sampling
 * Top-k Sampling
 * Top-p Sampling
 
 STEP 28 — MIDI Generation Pipeline
-
 STEP 29 — Generation CLI
 
 MILESTONE 5 — Generation System Complete
 
 Deliverables:
-
 * Genre-conditioned generation
 * Generated MIDI samples
 * Generation documentation
@@ -461,21 +375,15 @@ Human approval required.
 ## PHASE 6 — EVALUATION PIPELINE
 
 STEP 30 — Perplexity Evaluation
-
 STEP 31 — Genre Classification Evaluation
-
 STEP 32 — Pitch Distribution Analysis
-
 STEP 33 — Duration Distribution Analysis
-
 STEP 34 — Rhythm Distribution Analysis
-
 STEP 35 — Evaluation Report Generation
 
 MILESTONE 6 — Evaluation Complete
 
 Deliverables:
-
 * Evaluation report
 * Metric tables
 * Statistical comparison figures
@@ -487,11 +395,8 @@ Human approval required.
 ## PHASE 7 — INTERPRETABILITY
 
 STEP 36 — Attention Extraction
-
 STEP 37 — Attention Visualization
-
 STEP 38 — Genre Token Influence Analysis
-
 STEP 39 — Long-Range Dependency Analysis
 
 MILESTONE 7 — Interpretability Complete
@@ -510,9 +415,7 @@ Human approval required.
 ## PHASE 8 — PROJECT COMPLETION
 
 STEP 40 — README Creation
-
 STEP 41 — Experiment Documentation
-
 STEP 42 — Final Project Packaging
 
 ---
@@ -542,15 +445,11 @@ Do not declare project completion until all items have been verified.
 # SECTION 4 — CURRENT PROJECT STATE
 
 Current Phase:
-
 Phase 1 — Dataset Pipeline
 
 Current Step:
-
-Step 3 — MIDI Validation Pipeline
-
+Step 4 — Genre Metadata Extraction
 Current Status:
-
 IMPLEMENTED AND VERIFIED
 
 ---
@@ -560,6 +459,7 @@ IMPLEMENTED AND VERIFIED
 ✓ Step 1 — Repository Structure Setup
 ✓ Step 2 — Dataset Loader
 ✓ Step 3 — MIDI Validation Pipeline
+✓ Step 4 — Genre Metadata Extraction
 
 ---
 
@@ -580,15 +480,26 @@ IMPLEMENTED AND VERIFIED
 ✓ MIDI Validation Runner Implemented
 ✓ MIDI Validator Unit Tests Passing
 
+✓ Genre Metadata Extractor Implemented
+✓ Metadata Extractor Implemented
+✓ Genre Metadata Runner Implemented
+✓ Metadata Extraction Runner Implemented
+✓ Genre Analysis Implemented
+✓ Genre Extraction Unit Tests Passing
+
 Pytest Results:
 
 ✓ test_parse_error
 ✓ test_no_instruments
+✓ test_no_notes
 ✓ test_valid_midi
+
+✓ Dataset Loader Tests
+✓ Genre Metadata Extractor Tests
 
 Result:
 
-3 passed
+14 passed
 
 ---
 
@@ -606,9 +517,14 @@ music-generation/
 │
 ├── data/
 │   ├── raw/
-│       ├── lmd_matched/(multiple nested folders at the end of which multiple .mid files)
-│       └── lmd_matched_h5/(multiple nested folders at the end of which multiple .h5 files)
+│   │   ├── lmd_matched/(multiple nested folders at the end of which multiple .mid files)
+│   │   └── lmd_matched_h5/(multiple nested folders at the end of which multiple .h5 files)
+│   │
 │   ├── interim/
+│   │   ├── midi_validation_results.csv
+│   │   ├── genre_metadata.csv
+│   │   └── track_metadata.csv
+│   │
 │   ├── processed/
 │   ├── reports/
 │   └── splits/
@@ -619,13 +535,19 @@ music-generation/
 ├── notebooks/
 │
 ├── scripts/
-│       ├── run_midi_validator.py
-│       └── scan_dataset.py
+│   ├── scan_dataset.py
+│   ├── run_midi_validator.py
+│   ├── run_genre_metadata_extraction.py
+│   ├── run_metadata_extraction.py
+│   ├── analyze_tags.py
+│   └── analyze_genres.py
 │
 ├── tests/
 │   ├── data/
-│   │    ├── test_midi_validator.py
-│   │    └── test_dataset_loader.py
+│   │   ├── test_dataset_loader.py
+│   │   ├── test_midi_validator.py
+│   │   └── test_genre_metadata_extractor.py
+│   │
 │   ├── tokenization/
 │   ├── classifier/
 │   ├── transformer/
@@ -633,16 +555,20 @@ music-generation/
 │
 ├── src/
 │   ├── music_generation/
-│   │    ├── data/
-│   │    │    ├── dataset_loader.py
-│   │    │    └── midi_validator.py
-│   │    ├── tokenization/
-│   │    ├── classifier/
-│   │    ├── transformer/
-│   │    ├── generation/
-│   │    ├── evaluation/
-│   │    ├── interpretability/
-│   │    └── utils/
+│   │   ├── data/
+│   │   │   ├── dataset_loader.py
+│   │   │   ├── midi_validator.py
+│   │   │   ├── genre_metadata_extractor.py
+│   │   │   └── metadata_extractor.py
+│   │   │
+│   │   ├── tokenization/
+│   │   ├── classifier/
+│   │   ├── transformer/
+│   │   ├── generation/
+│   │   ├── evaluation/
+│   │   ├── interpretability/
+│   │   └── utils/
+│   │
 │   └── music_generation.egg-info
 │
 ├── pyproject.toml
@@ -654,15 +580,12 @@ music-generation/
 ## Package Configuration
 
 Project uses:
-
 src-layout
 
 Imports must use:
-
 from music_generation.data.dataset_loader import DatasetLoader
 
 Never:
-
 from src...
 
 ---
@@ -670,27 +593,41 @@ from src...
 ## Dataset State
 
 Dataset:
+Lakh MIDI Dataset — Matched Subset (LMD-Matched)
 
-Lakh MIDI Dataset (Full)
+Associated Metadata:
+LMD-Matched HDF5 Metadata
 
 Dataset Location:
-
 data/raw/
 
-Dataset Scan Result:
+Dataset Statistics:
 
-178,561 MIDI files discovered
+Total MIDI Files:
+113,324
+
+Valid MIDI Files:
+115,182
+
+Invalid MIDI Files:
+1,007
+
+Unique Tracks:
+30,898
 
 Dataset Loader Status:
-
 PASS
 
 MIDI Validator Status:
+PASS
 
+Metadata Extraction Status:
+PASS
+
+Genre Extraction Status:
 PASS
 
 Pytest Status:
-
 PASS
 
 ---
@@ -701,7 +638,7 @@ Implemented Components:
 
 ✓ MidiValidationResult
 ✓ MidiValidator
-✓ run_midi_validation.py
+✓ run_midi_validator.py
 
 Validation Rules:
 
@@ -726,20 +663,109 @@ data/interim/midi_validation_results.csv
 Output Schema:
 
 file_id
+track_id
 file_path
 is_valid
 failure_reason
 
 ---
 
+## Genre Metadata Extraction Status
+
+Implemented Components:
+
+✓ GenreMetadataExtractor
+✓ MetadataExtractor
+✓ run_genre_metadata_extraction.py
+✓ run_metadata_extraction.py
+✓ analyze_tags.py
+✓ analyze_genres.py
+
+Metadata Sources:
+
+Priority:
+
+1. MusicBrainz Tags
+2. Artist Terms
+
+Metadata Output:
+
+data/interim/track_metadata.csv
+
+Output Schema:
+
+track_id
+midi_path
+artist_terms
+musicbrainz_tags
+
+Metadata Results:
+
+Records Created:
+113,324
+Artist Terms Coverage:
+113,324 / 113,324
+MusicBrainz Tag Coverage:
+54,698 / 113,324
+
+---
+
+## Genre Conditioning Status
+
+Final Supported Genres:
+
+* Rock
+* Pop
+* Electronic
+* Jazz
+* Hip-Hop
+
+Genre Tokens:
+
+* <GENRE_ROCK>
+* <GENRE_POP>
+* <GENRE_ELECTRONIC>
+* <GENRE_JAZZ>
+* <GENRE_HIPHOP>
+
+Genre Assignment Method:
+
+1. Load MusicBrainz tags if available
+2. Otherwise use artist terms
+3. Score tags against normalized genre groups
+4. Select highest-scoring genre(s)
+5. Allow multi-label ties
+
+Genre Output:
+
+data/interim/genre_metadata.csv
+
+Output Schema:
+
+track_id
+midi_path
+genres
+genre_source
+
+Genre Results:
+
+Rock: 52,101
+Pop: 28,900
+Electronic: 19,876
+Jazz: 6,697
+Hip-Hop: 4,570
+
+Genre Records Saved:
+94,951
+
+---
+
 ## Frozen Architecture Decisions
 
 Generation Type:
-
 Multi-instrument generation
 
 NOT:
-
 Piano-only generation
 
 Tokenization Direction:
@@ -753,15 +779,12 @@ Duration
 Velocity
 
 Music Transformer Direction:
-
 Decoder-only Music Transformer
 Relative Position Attention
 Genre Conditioning
-
 Keep implementation simple.
 
 Avoid:
-
 * Diffusion
 * VQ-VAE
 * MoE
@@ -772,26 +795,25 @@ Avoid:
 
 ## Next Step
 
-Step 4 — Genre Metadata Extraction
+Step 5 — Tokenization Pipeline
 
 Approved Scope:
 
-1. Extract genre metadata for each MIDI file.
-2. Associate MIDI files with one of:
-   - Classical
-   - Jazz
-   - Pop
-   - Rock
-3. Record genre labels.
-4. Save genre metadata results.
+1. Define token vocabulary.
+2. Define token event schema.
+3. Implement MIDI → Event conversion.
+4. Implement Event → Token conversion.
+5. Add genre conditioning token support.
+6. Support multi-instrument arrangements using Program tokens.
+7. Save tokenized sequences.
 
 Do NOT:
 
-* Extract instrument families.
-* Generate dataset statistics.
-* Clean dataset.
-* Remove duplicates.
+* Train classifier models.
+* Build transformer models.
 * Create train/validation/test splits.
+* Perform sequence generation.
+* Build evaluation metrics.
 
 Those belong to later steps.
 
@@ -799,24 +821,21 @@ Those belong to later steps.
 
 ## Awaiting Implementation
 
-Step 4 — Genre Metadata Extraction
+Step 5 — Tokenization Pipeline
 
 Current State:
 
 ✓ Dataset Loader Complete
 ✓ MIDI Validation Pipeline Complete
-✓ Validation Tests Passing
+✓ Metadata Extraction Complete
+✓ Genre Metadata Extraction Complete
+✓ Genre Analysis Complete
+✓ Tests Passing (14 passed)
 
 The architecture and roadmap are already approved.
-
 Do not redesign anything.
-
 Implement only the current step.
-
 Begin with:
-
 Part 1 — Goal
-
 Part 2 — Design Review
-
 Then wait for approval before writing code.

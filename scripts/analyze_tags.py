@@ -1,0 +1,31 @@
+from collections import Counter
+import pandas as pd
+
+
+df = pd.read_csv("data/interim/track_metadata.csv")
+artist_counter = Counter()
+mb_counter = Counter()
+
+
+for tags in df["artist_terms"].fillna(""):
+    for tag in tags.split("|"):
+        tag = tag.strip().lower()
+        if tag:
+            artist_counter[tag] += 1
+
+
+for tags in df["musicbrainz_tags"].fillna(""):
+    for tag in tags.split("|"):
+        tag = tag.strip().lower()
+        if tag:
+            mb_counter[tag] += 1
+
+
+print("\nTOP 100 ARTIST TERMS\n")
+for tag, count in artist_counter.most_common(50):
+    print(f"{count:>8}  {tag}")
+
+
+print("\nTOP 100 MUSICBRAINZ TAGS\n")
+for tag, count in mb_counter.most_common(50):
+    print(f"{count:>8}  {tag}")
