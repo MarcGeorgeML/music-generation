@@ -109,7 +109,6 @@ Supported Instrument Events:
 - INST_BASS
 - INST_STRINGS
 - INST_DRUMS
-- INST_OTHER
 
 
 
@@ -145,7 +144,6 @@ Instrument families must be emitted in a deterministic order:
 3. Guitar
 4. Piano
 5. Strings
-6. Other
 This ordering must be used consistently during encoding and decoding.
 
 ---
@@ -482,7 +480,7 @@ Current Phase:
 Phase 1 — Dataset Pipeline
 
 Current Step:
-Step 6 — Dataset Statistics Generation
+Step 7 — Dataset Cleaning Pipeline
 
 Current Status:
 NOT STARTED
@@ -490,12 +488,14 @@ NOT STARTED
 ---
 
 ## Completed Steps
+
 ✓ Step 1 — Repository Structure Setup
 ✓ Step 2 — Dataset Loader
 ✓ Step 3 — MIDI Validation Pipeline
 ✓ Step 4 — Genre Metadata Extraction
 ✓ Step 5 — Instrument Family Extraction
-✓ Tests Passing (23 passed)
+✓ Step 6 — Dataset Statistics Generation
+✓ Tests Passing
 
 ---
 
@@ -520,8 +520,14 @@ music-generation/
 │   │   ├── track_metadata.csv
 │   │   └── instrument_families.csv
 │   │
-│   ├── processed/
 │   ├── reports/
+│   │   ├── dataset_analysis.md
+│   │   ├── dataset_summary.json
+│   │   ├── genre_instrument_statistics.csv
+│   │   └── genre_statistics.csv
+│   │   └── instrument_statistics.csv
+│   │
+│   ├── processed/
 │   └── splits/
 │
 ├── checkpoints/
@@ -536,14 +542,16 @@ music-generation/
 │   ├── run_metadata_extraction.py
 │   ├── analyze_tags.py
 │   ├── analyze_genres.py
-│   └── run_instrument_family_extraction.py
+│   ├── run_instrument_family_extraction.py
+│   └── run_dataset_statistics.py
 │
 ├── tests/
 │   ├── data/
 │   │   ├── test_dataset_loader.py
 │   │   ├── test_midi_validator.py
 │   │   ├── test_genre_metadata_extractor.py
-│   │   └── test_instrument_family_extractor.py
+│   │   ├── test_instrument_family_extractor.py
+│   │   └── test_dataset_statistics.py
 │   │
 │   ├── tokenization/
 │   ├── classifier/
@@ -557,7 +565,8 @@ music-generation/
 │   │   │   ├── midi_validator.py
 │   │   │   ├── genre_metadata_extractor.py
 │   │   │   ├── metadata_extractor.py
-│   │   │   └── instrument_family_extractor.py
+│   │   │   ├── instrument_family_extractor.py
+│   │   │   └── dataset_statistics.py
 │   │   │
 │   │   ├── tokenization/
 │   │   ├── classifier/
@@ -613,7 +622,6 @@ Unique Tracks:
 ## MIDI Validation Pipeline Status
 
 Implemented Components:
-
 ✓ MidiValidationResult
 ✓ MidiValidator
 ✓ run_midi_validator.py
@@ -627,8 +635,8 @@ track_id
 file_path
 is_valid
 failure_reason
-Failure Reasons:
 
+Failure Reasons:
 - parse_error
 - no_instruments
 - no_notes
@@ -669,6 +677,13 @@ Records Created:
 Genre Records Saved:
 94,951
 
+Final Genre Distribution:
+- Rock: 52,101 (46.46%)
+- Pop: 28,900 (25.77%)
+- Electronic: 19,876 (17.72%)
+- Jazz: 6,697 (5.97%)
+- Hip Hop: 4,570 (4.08%)
+
 ---
 
 ## Instrument Family Extraction Status
@@ -689,7 +704,7 @@ instrument_families
 Records Created:
 113,324
 
-Supported Instrument Families:
+Raw Extracted Families:
 - piano
 - guitar
 - bass
@@ -697,101 +712,107 @@ Supported Instrument Families:
 - drums
 - other
 
+Architecture Decision:
+The "other" family will not be used by downstream components.
+Approved Instrument Families Going Forward:
+
+- piano
+- guitar
+- bass
+- strings
+- drums
+
+"other" will be removed during the Dataset Cleaning Pipeline.
+
 ---
 
-## Current Step — Dataset Statistics Generation
+## Dataset Statistics Generation Status
+
+Implemented Components:
+✓ DatasetStatisticsConfig
+✓ DatasetStatisticsResult
+✓ dataset_statistics.py
+✓ run_dataset_statistics.py
+✓ test_dataset_statistics.py
+
+Outputs:
+data/reports/dataset_summary.json
+data/reports/genre_statistics.csv
+data/reports/instrument_statistics.csv
+data/reports/genre_instrument_statistics.csv
+
+Dataset Statistics Summary:
+- Total MIDI Files: 113,324
+- Total Unique Tracks: 30,574
+- Genre Classes: 5
+- Instrument Families: 6 (raw extraction)
+- Average Instrument Families per MIDI: 4.56
+
+Most Common Instrument Combination:
+drums + bass + guitar + piano + strings + other
+
+Dataset Assessment:
+* Dataset size sufficient for Music Transformer training.
+* Multi-instrument arrangements dominate the dataset.
+* Genre coverage is acceptable across all target genres.
+* Instrument family extraction validated successfully.
+* Dataset approved to proceed to cleaning stage.
+
+---
+
+## Current Step — Dataset Cleaning Pipeline
 
 Objective:
-
-Generate dataset-level statistics and reports for the cleaned metadata pipeline.
+Create the cleaned training corpus using previously generated metadata artifacts.
 
 Output Directory:
-data/reports/
+data/processed/
 
 Approved Inputs:
-data/interim/track_metadata.csv
+data/interim/midi_validation_results.csv
 data/interim/genre_metadata.csv
 data/interim/instrument_families.csv
-data/interim/midi_validation_results.csv
-
-Approved Scope:
-1. Generate genre distributions.
-2. Generate instrument family distributions.
-3. Generate genre × instrument family statistics.
-4. Generate dataset summary statistics.
-5. Produce dataset report artifacts.
-
-Do NOT:
-- Remove files from the dataset.
-- Perform dataset cleaning.
-- Detect duplicates.
-- Create train/validation/test splits.
-- Build tokenization components.
-- Implement REMI encoding.
-- Implement REMI decoding.
-
-Current Status:
-NOT STARTED
-
-Step 6 Design Decisions
-
-Pipeline Style:
-Metadata-centric
-
-- Statistics generation must operate only on previously generated metadata artifacts.
-- Do not reload or parse MIDI files during Step 6.
-
-Primary Inputs:
 data/interim/track_metadata.csv
-data/interim/genre_metadata.csv
-data/interim/instrument_families.csv
 
-Secondary Input:
-data/interim/midi_validation_results.csv
+Cleaning Requirements:
+1. Remove invalid MIDI files.
+2. Remove MIDI files without genre labels.
+3. Remove the "other" instrument family from all instrument assignments.
+4. Remove MIDI files that contain no supported instrument families after filtering.
+5. Remove extremely short MIDI files.
+6. Remove extremely long MIDI files.
+7. Generate cleaning statistics and retention reports.
 
 Metadata Keys:
 track_id
 midi_path
 
 Important:
-track_id is NOT a unique identifier in LMD-Matched.
-Multiple MIDI files may correspond to the same track_id.
-midi_path is the unique file-level identifier.
-Any joins involving per-MIDI statistics must preserve midi_path.
-
-Required Statistics:
-- Total MIDI files
-- Total unique tracks
-- Genre distribution
-- Genre percentages
-- Instrument family distribution
-- Instrument family percentages
-- Genre × Instrument family distribution
-- Average instrument families per MIDI
-- Most common instrument family combinations
+track_id is NOT unique.
+midi_path remains the canonical file-level identifier throughout cleaning.
 
 Expected Outputs:
-data/reports/dataset_summary.json
-data/reports/genre_statistics.csv
-data/reports/instrument_statistics.csv
-data/reports/genre_instrument_statistics.csv
+data/processed/clean_dataset.csv
+data/processed/clean_genre_metadata.csv
+data/processed/clean_instrument_families.csv
+data/reports/dataset_cleaning_report.json
 
 Do NOT:
-- Reprocess MIDI files
-- Extract new metadata
-- Perform dataset cleaning
-- Remove files
 - Detect duplicates
 - Create train/validation/test splits
+- Build tokenization components
+- Implement REMI encoding
+- Implement REMI decoding
 
-Step 6 is a metadata analysis and reporting stage only.
+Step 7 is a dataset filtering and retention stage only.
 
-Step 6 Completion Requirements
-- Dataset summary generated
-- Genre statistics generated
-- Instrument statistics generated
-- Genre × instrument statistics generated
-- Report artifacts saved under data/reports/
+Step 7 Completion Requirements:
+- Invalid files removed
+- Unlabeled files removed
+- "other" family removed
+- Empty instrument assignments removed
+- Cleaning statistics generated
+- Cleaned metadata artifacts saved
 
 Implementation Protocol:
 
