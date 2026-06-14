@@ -1,0 +1,63 @@
+{
+  "total_midi_files": 113324,
+  "total_unique_tracks": 30574,
+  "validation_counts": {
+    "True": 113324
+  },
+  "genre_count": 5,
+  "instrument_family_count": 6,
+  "genre_instrument_pair_count": 30,
+  "average_instrument_families_per_midi": 4.562890473333098,
+  "most_common_instrument_combinations": [
+    {
+      "instrument_combination": "drums + bass + guitar + piano + strings + other",
+      "midi_file_count": 33372,
+      "percentage_of_files": 29.4483075076771
+    },
+    {
+      "instrument_combination": "drums + bass + guitar + piano + other",
+      "midi_file_count": 14552,
+      "percentage_of_files": 12.841057498852848
+    },
+    {
+      "instrument_combination": "drums + bass + guitar + strings + other",
+      "midi_file_count": 10145,
+      "percentage_of_files": 8.952207828880026
+    },
+    {
+      "instrument_combination": "drums + bass + piano + strings + other",
+      "midi_file_count": 10023,
+      "percentage_of_files": 8.84455190427447
+    },
+    {
+      "instrument_combination": "drums + bass + guitar + other",
+      "midi_file_count": 8826,
+      "percentage_of_files": 7.788288447283893
+    },
+    {
+      "instrument_combination": "piano",
+      "midi_file_count": 5763,
+      "percentage_of_files": 5.085418799195228
+    },
+    {
+      "instrument_combination": "drums + bass + strings + other",
+      "midi_file_count": 3036,
+      "percentage_of_files": 2.6790441565776004
+    },
+    {
+      "instrument_combination": "drums + bass + guitar + piano + strings",
+      "midi_file_count": 2728,
+      "percentage_of_files": 2.407257068229148
+    },
+    {
+      "instrument_combination": "drums + bass + piano + other",
+      "midi_file_count": 2493,
+      "percentage_of_files": 2.1998870495217253
+    },
+    {
+      "instrument_combination": "drums + piano",
+      "midi_file_count": 2072,
+      "percentage_of_files": 1.8283858670714057
+    }
+  ]
+}
