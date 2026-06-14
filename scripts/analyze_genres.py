@@ -1,3 +1,5 @@
+# uv run python scripts/analyze_genres.py
+
 from collections import Counter
 import pandas as pd
 

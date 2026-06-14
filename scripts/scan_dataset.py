@@ -1,3 +1,5 @@
+# uv run python scripts/scan_dataset.py
+
 from music_generation.data.dataset_loader import DatasetLoader
 
 loader = DatasetLoader()

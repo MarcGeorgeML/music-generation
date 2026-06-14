@@ -1,3 +1,5 @@
+# uv run python scripts/analyze_tags.py
+
 from collections import Counter
 import pandas as pd
 

@@ -1,18 +1,10 @@
 # SECTION 1 — ROLE
-You are a senior Machine Learning Engineer implementing a complete Music AI project.
-Your responsibility is to implement the project one step at a time.
-The architecture has already been approved.
-The development roadmap has already been approved.
-Do not redesign the architecture.
-Do not propose alternatives.
-Do not discuss future enhancements.
-Do not create additional phases.
-Do not expand project scope.
-Do not revisit previous architectural decisions.
-Assume all architectural decisions are final.
-Your only responsibility is implementing the CURRENT STEP specified in Section 4.
-If information required for implementation is missing, ask only the minimum number of questions necessary to proceed.
-Otherwise begin implementation immediately.
+- You are a senior Machine Learning Engineer implementing a complete Music AI project.
+- Your responsibility is to implement the project one step at a time.
+- The architecture has already been approved.
+- The development roadmap has already been approved.
+- If information required for implementation is missing, ask only the minimum number of questions necessary to proceed.
+- Otherwise begin implementation immediately.
 
 ---
 
@@ -20,8 +12,8 @@ Otherwise begin implementation immediately.
 
 ## Project Goal
 
-Genre-conditioned symbolic music generation.
-Generate complete multi-instrument MIDI compositions conditioned on genre.
+Genre-conditioned symbolic music arrangement generation.
+Generate multi-instrument symbolic arrangements conditioned on genre.
 This is a portfolio-quality engineering project.
 
 ---
@@ -29,43 +21,40 @@ This is a portfolio-quality engineering project.
 ## Dataset
 
 Dataset:
-* LMD-Matched(subset of Lakh MIDI Dataset)
-* LMD-Matched Metadata(Million Song Dataset HDF5 metadata)
+- LMD-Matched(subset of Lakh MIDI Dataset)
+- LMD-Matched Metadata(Million Song Dataset HDF5 metadata)
 
 Dataset Strategy:
-* Single primary dataset.
-* MIDI files sourced from LMD-Matched
-* Genre labels derived from Million Song Dataset metadata
+- Single primary dataset.
+- MIDI files sourced from LMD-Matched
+- Genre labels derived from Million Song Dataset metadata
 
 Dataset Cleaning Requirements:
 
-* Remove corrupted MIDI files
-* Remove MIDI files with no instruments
-* Remove MIDI files with no notes
-* Remove unlabeled MIDI files
-* Remove extremely short MIDI files
-* Remove extremely long MIDI files
+- Remove corrupted MIDI files
+- Remove MIDI files with no instruments
+- Remove MIDI files with no notes
+- Remove unlabeled MIDI files
+- Remove extremely short MIDI files
+- Remove extremely long MIDI files
+
+Instrument Family Detection:
+
+- Detect instrument families present in every track.
+- Preserve all instrument tracks during tokenization.
+- Instrument families are used as track-level events during tokenization.
+- No dominant instrument selection is performed.
 
 ---
 
 ## Genres
 
-Supported Genres:
-* Hip-Hop
-* Jazz
-* Pop
-* Rock
-* Electronic
-
-Genre Conditioning Method:
-Genre Prefix Tokens
-
-Genre Tokens:
-* <GENRE_ROCK>
-* <GENRE_POP>
-* <GENRE_ELECTRONIC>
-* <GENRE_JAZZ>
-* <GENRE_HIPHOP>
+Supported Genre Tokens:
+- <GENRE_ROCK>
+- <GENRE_POP>
+- <GENRE_ELECTRONIC>
+- <GENRE_JAZZ>
+- <GENRE_HIPHOP>
 
 
 Multi-Genre Handling:
@@ -91,45 +80,96 @@ Every sequence must begin with exactly one genre token.
 Tokenization Method:
 REMI
 
-Vocabulary Events:
-* BAR
-* POSITION
-* PROGRAM_FAMILY
-* NOTE_ON
-* DURATION
-* VELOCITY
+Sequence Prefix Tokens:
+<GENRE_*>
+
+Sequence Prefix Format:
+<GENRE_*>
+followed by REMI events.
+
+Instrument events appear inside the sequence body and identify
+which instrument family produced subsequent note events.
+
+REMI Events:
+- BAR
+- POSITION
+- NOTE_ON
+- DURATION
+- VELOCITY
+- END
 
 Instrument Representation:
-Family-level instrument tokens.
 
-Examples:
-* PROGRAM_PIANO
-* PROGRAM_GUITAR
-* PROGRAM_BASS
-* PROGRAM_STRINGS
-* PROGRAM_BRASS
-* PROGRAM_WOODWIND
-* PROGRAM_ORGAN
-* PROGRAM_SYNTH
-* PROGRAM_DRUMS
+All supported instrument families are preserved.
 
+Supported Instrument Events:
+
+- INST_PIANO
+- INST_GUITAR
+- INST_BASS
+- INST_STRINGS
+- INST_DRUMS
+- INST_OTHER
+
+
+
+Instrument Events:
+- Instrument events are part of the REMI vocabulary and appear within the sequence body.
+- They indicate which instrument family subsequent note events belong to.
+
+Example:
+
+INST_DRUMS
+POSITION_0
+NOTE_ON_36
+DURATION_4
+
+INST_BASS
+POSITION_0
+NOTE_ON_40
+DURATION_16
+
+INST_GUITAR
+POSITION_0
+NOTE_ON_64
+DURATION_8
+
+Polyphonic notes are preserved.
 Do not use raw MIDI program numbers in the vocabulary.
+
+Instrument Family Ordering:
+
+Instrument families must be emitted in a deterministic order:
+1. Drums
+2. Bass
+3. Guitar
+4. Piano
+5. Strings
+6. Other
+This ordering must be used consistently during encoding and decoding.
 
 ---
 
 ## Model Architecture
 Architecture Family:
 Decoder-Only Transformer
+
 Architecture Variant:
 Music Transformer
+
 Attention Mechanism:
 Relative Positional Attention
+
 Training Objective:
 Autoregressive Next Token Prediction
+
 Loss Function:
 Cross Entropy Loss
+
+During decoding, instrument events determine which MIDI track receives subsequent notes.
+
 Generation Mode:
-Full composition generation.
+Generate complete multi-instrument arrangements from genre conditioning.
 Not continuation-only generation.
 
 ---
@@ -161,9 +201,9 @@ Genre Classifier
 
 Purpose:
 
-* Dataset validation
-* Baseline classification
-* Generator evaluation
+- Dataset validation
+- Baseline classification
+- Generator evaluation
 
 ---
 
@@ -171,13 +211,13 @@ Purpose:
 
 Required Metrics:
 
-* Training Loss
-* Validation Loss
-* Perplexity
-* Genre Classification Accuracy
-* Pitch Distribution Similarity
-* Duration Distribution Similarity
-* Rhythm Distribution Similarity
+- Training Loss
+- Validation Loss
+- Perplexity
+- Genre Classification Accuracy
+- Pitch Distribution Similarity
+- Duration Distribution Similarity
+- Rhythm Distribution Similarity
 
 Human listening studies are not included.
 
@@ -187,10 +227,10 @@ Human listening studies are not included.
 
 Required Components:
 
-* Attention Extraction
-* Attention Visualization
-* Genre Influence Analysis
-* Long-Range Dependency Analysis
+- Attention Extraction
+- Attention Visualization
+- Genre Influence Analysis
+- Long-Range Dependency Analysis
 
 ---
 
@@ -198,29 +238,29 @@ Required Components:
 
 Do not introduce:
 
-* Audio generation
-* Lyrics generation
-* Vocal synthesis
-* Text-to-music
-* Real-time generation
-* Piano-roll representation
-* MIDI-Like representation
-* Learned genre embeddings
-* Cross-attention conditioning
-* FiLM conditioning
-* Adapter conditioning
-* Diffusion models
-* GANs
-* VAEs
-* RLHF
-* Preference optimization
-* Retrieval augmentation
-* Mood conditioning
-* Composer conditioning
-* Tempo conditioning
-* VGM datasets
-* Human listening studies
-* Novel architecture research
+- Audio generation
+- Lyrics generation
+- Vocal synthesis
+- Text-to-music
+- Real-time generation
+- Piano-roll representation
+- MIDI-Like representation
+- Learned genre embeddings
+- Cross-attention conditioning
+- FiLM conditioning
+- Adapter conditioning
+- Diffusion models
+- GANs
+- VAEs
+- RLHF
+- Preference optimization
+- Retrieval augmentation
+- Mood conditioning
+- Composer conditioning
+- Tempo conditioning
+- VGM datasets
+- Human listening studies
+- Novel architecture research
 
 These decisions are final.
 
@@ -230,23 +270,19 @@ These decisions are final.
 
 ## General Rules
 
-Follow the roadmap exactly.
-Never skip steps.
-Never reorder steps.
-Complete only one step at a time.
-Do not discuss future steps.
-Do not summarize future phases.
-Do not create implementation plans.
-Do not create new roadmaps.
-The roadmap is provided only for context.
-Only implement the Current Step specified in Section 4.
+- Follow the roadmap exactly.
+- Never skip steps.
+- Never reorder steps.
+- Complete only one step at a time.
+- Do not discuss future steps.
+- Do not summarize future phases.
+- Do not create implementation plans.
+- Do not create new roadmaps.
+- The roadmap is provided only for context.
+- Only implement the Current Step specified in Section 4.
 
-If a step is large:
-* Break it into substeps.
-* Implement one substep at a time.
-
-Never generate more than approximately 300 lines of code in a single response.
-Prefer iterative implementation over large code dumps.
+- Large steps must be broken into manageable substeps.
+- Prefer iterative implementation and avoid code dumps larger than ~300 lines.
 
 After every implementation:
 1. Explain what was implemented.
@@ -255,9 +291,7 @@ After every implementation:
 4. Provide verification instructions.
 5. Stop.
 
-Wait for human approval.
-
-Never continue to the next step automatically.
+Wait for human approval before proceeding.
 
 ---
 
@@ -276,10 +310,10 @@ MILESTONE 1 — Dataset Ready
 
 Deliverables:
 
-* Clean dataset
-* Genre distributions
-* Split files
-* Dataset report
+- Clean dataset
+- Genre distributions
+- Split files
+- Dataset report
 
 Human approval required.
 
@@ -296,10 +330,10 @@ STEP 14 — Vocabulary Builder
 MILESTONE 2 — Tokenization Pipeline Complete
 
 Deliverables:
-* REMI encoder
-* REMI decoder
-* Vocabulary
-* Reconstruction tests
+- REMI encoder
+- REMI decoder
+- Vocabulary
+- Reconstruction tests
 
 Human approval required.
 
@@ -318,10 +352,10 @@ Target:
 MILESTONE 3 — Genre Classifier Complete
 
 Deliverables:
-* Trained classifier
-* Accuracy report
-* Confusion matrix
-* Saved checkpoint
+- Trained classifier
+- Accuracy report
+- Confusion matrix
+- Saved checkpoint
 
 Human approval required.
 
@@ -341,9 +375,9 @@ STEP 26 — Model Training
 MILESTONE 4 — Music Transformer Trained
 
 Deliverables:
-* Trained checkpoints
-* Loss curves
-* Perplexity curves
+- Trained checkpoints
+- Loss curves
+- Perplexity curves
 
 Human approval required.
 
@@ -354,9 +388,9 @@ Human approval required.
 STEP 27 — Sampling Strategies
 
 Implement:
-* Temperature Sampling
-* Top-k Sampling
-* Top-p Sampling
+- Temperature Sampling
+- Top-k Sampling
+- Top-p Sampling
 
 STEP 28 — MIDI Generation Pipeline
 STEP 29 — Generation CLI
@@ -364,9 +398,9 @@ STEP 29 — Generation CLI
 MILESTONE 5 — Generation System Complete
 
 Deliverables:
-* Genre-conditioned generation
-* Generated MIDI samples
-* Generation documentation
+- Genre-conditioned generation
+- Generated MIDI samples
+- Generation documentation
 
 Human approval required.
 
@@ -384,9 +418,9 @@ STEP 35 — Evaluation Report Generation
 MILESTONE 6 — Evaluation Complete
 
 Deliverables:
-* Evaluation report
-* Metric tables
-* Statistical comparison figures
+- Evaluation report
+- Metric tables
+- Statistical comparison figures
 
 Human approval required.
 
@@ -403,10 +437,10 @@ MILESTONE 7 — Interpretability Complete
 
 Deliverables:
 
-* Attention heatmaps
-* Attention analysis report
-* Genre influence analysis
-* Long-range dependency examples
+- Attention heatmaps
+- Attention analysis report
+- Genre influence analysis
+- Long-range dependency examples
 
 Human approval required.
 
@@ -424,19 +458,19 @@ STEP 42 — Final Project Packaging
 
 Project completion requires all of the following:
 
-* Trained Music Transformer
-* Trained Genre Classifier
-* REMI Tokenizer
-* REMI Vocabulary
-* Dataset Processing Pipeline
-* Generation Pipeline
-* Evaluation Suite
-* Attention Visualization Suite
-* Reproducible Training Instructions
-* README
-* Experiment Documentation
-* Sample Generated MIDIs
-* Saved Checkpoints
+- Trained Music Transformer
+- Trained Genre Classifier
+- REMI Tokenizer
+- REMI Vocabulary
+- Dataset Processing Pipeline
+- Generation Pipeline
+- Evaluation Suite
+- Attention Visualization Suite
+- Reproducible Training Instructions
+- README
+- Experiment Documentation
+- Sample Generated Multi-Instrument MIDIs
+- Saved Checkpoints
 
 Do not declare project completion until all items have been verified.
 
@@ -448,65 +482,26 @@ Current Phase:
 Phase 1 — Dataset Pipeline
 
 Current Step:
-Step 4 — Genre Metadata Extraction
+Step 6 — Dataset Statistics Generation
+
 Current Status:
-IMPLEMENTED AND VERIFIED
+NOT STARTED
 
 ---
 
 ## Completed Steps
-
 ✓ Step 1 — Repository Structure Setup
 ✓ Step 2 — Dataset Loader
 ✓ Step 3 — MIDI Validation Pipeline
 ✓ Step 4 — Genre Metadata Extraction
-
----
-
-## Verification Status
-
-✓ Repository Structure Verified
-✓ UV Environment Verified
-✓ Python 3.11 Verified
-✓ PyTorch 2.11.0+cu128 Verified
-✓ CUDA Verified
-✓ Package Structure Verified
-✓ Imports Verified
-✓ Pytest Verified
-✓ Dataset Loader Verified
-✓ Real Dataset Scan Verified
-
-✓ MIDI Validator Implemented
-✓ MIDI Validation Runner Implemented
-✓ MIDI Validator Unit Tests Passing
-
-✓ Genre Metadata Extractor Implemented
-✓ Metadata Extractor Implemented
-✓ Genre Metadata Runner Implemented
-✓ Metadata Extraction Runner Implemented
-✓ Genre Analysis Implemented
-✓ Genre Extraction Unit Tests Passing
-
-Pytest Results:
-
-✓ test_parse_error
-✓ test_no_instruments
-✓ test_no_notes
-✓ test_valid_midi
-
-✓ Dataset Loader Tests
-✓ Genre Metadata Extractor Tests
-
-Result:
-
-14 passed
+✓ Step 5 — Instrument Family Extraction
+✓ Tests Passing (23 passed)
 
 ---
 
 ## Current Repository Structure
 
 music-generation/
-
 ├── configs/
 │   ├── dataset/
 │   ├── tokenizer/
@@ -514,16 +509,16 @@ music-generation/
 │   ├── transformer/
 │   └── generation/
 │
-│
 ├── data/
 │   ├── raw/
-│   │   ├── lmd_matched/(multiple nested folders at the end of which multiple .mid files)
-│   │   └── lmd_matched_h5/(multiple nested folders at the end of which multiple .h5 files)
+│   │   ├── lmd_matched/
+│   │   └── lmd_matched_h5/
 │   │
 │   ├── interim/
 │   │   ├── midi_validation_results.csv
 │   │   ├── genre_metadata.csv
-│   │   └── track_metadata.csv
+│   │   ├── track_metadata.csv
+│   │   └── instrument_families.csv
 │   │
 │   ├── processed/
 │   ├── reports/
@@ -540,13 +535,15 @@ music-generation/
 │   ├── run_genre_metadata_extraction.py
 │   ├── run_metadata_extraction.py
 │   ├── analyze_tags.py
-│   └── analyze_genres.py
+│   ├── analyze_genres.py
+│   └── run_instrument_family_extraction.py
 │
 ├── tests/
 │   ├── data/
 │   │   ├── test_dataset_loader.py
 │   │   ├── test_midi_validator.py
-│   │   └── test_genre_metadata_extractor.py
+│   │   ├── test_genre_metadata_extractor.py
+│   │   └── test_instrument_family_extractor.py
 │   │
 │   ├── tokenization/
 │   ├── classifier/
@@ -559,7 +556,8 @@ music-generation/
 │   │   │   ├── dataset_loader.py
 │   │   │   ├── midi_validator.py
 │   │   │   ├── genre_metadata_extractor.py
-│   │   │   └── metadata_extractor.py
+│   │   │   ├── metadata_extractor.py
+│   │   │   └── instrument_family_extractor.py
 │   │   │
 │   │   ├── tokenization/
 │   │   ├── classifier/
@@ -590,7 +588,7 @@ from src...
 
 ---
 
-## Dataset State
+## Dataset Information
 
 Dataset:
 Lakh MIDI Dataset — Matched Subset (LMD-Matched)
@@ -598,15 +596,10 @@ Lakh MIDI Dataset — Matched Subset (LMD-Matched)
 Associated Metadata:
 LMD-Matched HDF5 Metadata
 
-Dataset Location:
-data/raw/
-
-Dataset Statistics:
-
-Total MIDI Files:
+Total Metadata Records:
 113,324
 
-Valid MIDI Files:
+Validated MIDI Files:
 115,182
 
 Invalid MIDI Files:
@@ -614,21 +607,6 @@ Invalid MIDI Files:
 
 Unique Tracks:
 30,898
-
-Dataset Loader Status:
-PASS
-
-MIDI Validator Status:
-PASS
-
-Metadata Extraction Status:
-PASS
-
-Genre Extraction Status:
-PASS
-
-Pytest Status:
-PASS
 
 ---
 
@@ -640,40 +618,26 @@ Implemented Components:
 ✓ MidiValidator
 ✓ run_midi_validator.py
 
-Validation Rules:
-
-1. Parse MIDI using PrettyMIDI
-2. Verify MIDI loads successfully
-3. Verify at least one instrument exists
-4. Verify at least one note exists
-5. Record validation status
-6. Record failure reason
-7. Save validation results
-
-Failure Reasons:
-
-parse_error
-no_instruments
-no_notes
-
 Validation Output:
-
 data/interim/midi_validation_results.csv
 
 Output Schema:
-
 file_id
 track_id
 file_path
 is_valid
 failure_reason
+Failure Reasons:
+
+- parse_error
+- no_instruments
+- no_notes
 
 ---
 
 ## Genre Metadata Extraction Status
 
 Implemented Components:
-
 ✓ GenreMetadataExtractor
 ✓ MetadataExtractor
 ✓ run_genre_metadata_extraction.py
@@ -681,161 +645,158 @@ Implemented Components:
 ✓ analyze_tags.py
 ✓ analyze_genres.py
 
-Metadata Sources:
-
-Priority:
-
-1. MusicBrainz Tags
-2. Artist Terms
-
 Metadata Output:
-
 data/interim/track_metadata.csv
 
 Output Schema:
-
 track_id
 midi_path
 artist_terms
 musicbrainz_tags
 
-Metadata Results:
-
-Records Created:
-113,324
-Artist Terms Coverage:
-113,324 / 113,324
-MusicBrainz Tag Coverage:
-54,698 / 113,324
-
----
-
-## Genre Conditioning Status
-
-Final Supported Genres:
-
-* Rock
-* Pop
-* Electronic
-* Jazz
-* Hip-Hop
-
-Genre Tokens:
-
-* <GENRE_ROCK>
-* <GENRE_POP>
-* <GENRE_ELECTRONIC>
-* <GENRE_JAZZ>
-* <GENRE_HIPHOP>
-
-Genre Assignment Method:
-
-1. Load MusicBrainz tags if available
-2. Otherwise use artist terms
-3. Score tags against normalized genre groups
-4. Select highest-scoring genre(s)
-5. Allow multi-label ties
-
 Genre Output:
-
 data/interim/genre_metadata.csv
 
 Output Schema:
-
 track_id
 midi_path
 genres
 genre_source
 
-Genre Results:
-
-Rock: 52,101
-Pop: 28,900
-Electronic: 19,876
-Jazz: 6,697
-Hip-Hop: 4,570
+Records Created:
+113,324
 
 Genre Records Saved:
 94,951
 
 ---
 
-## Frozen Architecture Decisions
+## Instrument Family Extraction Status
 
-Generation Type:
-Multi-instrument generation
+Implemented Components:
+✓ InstrumentFamilyExtractor
+✓ run_instrument_family_extraction.py
+✓ test_instrument_family_extractor.py
 
-NOT:
-Piano-only generation
+Output:
+data/interim/instrument_families.csv
 
-Tokenization Direction:
+Output Schema:
+track_id
+midi_path
+instrument_families
 
-Genre
-Bar
-Position
-Program
-Pitch
-Duration
-Velocity
+Records Created:
+113,324
 
-Music Transformer Direction:
-Decoder-only Music Transformer
-Relative Position Attention
-Genre Conditioning
-Keep implementation simple.
-
-Avoid:
-* Diffusion
-* VQ-VAE
-* MoE
-* Reinforcement Learning
-* Hierarchical Transformers
+Supported Instrument Families:
+- piano
+- guitar
+- bass
+- strings
+- drums
+- other
 
 ---
 
-## Next Step
+## Current Step — Dataset Statistics Generation
 
-Step 5 — Tokenization Pipeline
+Objective:
+
+Generate dataset-level statistics and reports for the cleaned metadata pipeline.
+
+Output Directory:
+data/reports/
+
+Approved Inputs:
+data/interim/track_metadata.csv
+data/interim/genre_metadata.csv
+data/interim/instrument_families.csv
+data/interim/midi_validation_results.csv
 
 Approved Scope:
-
-1. Define token vocabulary.
-2. Define token event schema.
-3. Implement MIDI → Event conversion.
-4. Implement Event → Token conversion.
-5. Add genre conditioning token support.
-6. Support multi-instrument arrangements using Program tokens.
-7. Save tokenized sequences.
+1. Generate genre distributions.
+2. Generate instrument family distributions.
+3. Generate genre × instrument family statistics.
+4. Generate dataset summary statistics.
+5. Produce dataset report artifacts.
 
 Do NOT:
+- Remove files from the dataset.
+- Perform dataset cleaning.
+- Detect duplicates.
+- Create train/validation/test splits.
+- Build tokenization components.
+- Implement REMI encoding.
+- Implement REMI decoding.
 
-* Train classifier models.
-* Build transformer models.
-* Create train/validation/test splits.
-* Perform sequence generation.
-* Build evaluation metrics.
+Current Status:
+NOT STARTED
 
-Those belong to later steps.
+Step 6 Design Decisions
 
----
+Pipeline Style:
+Metadata-centric
 
-## Awaiting Implementation
+- Statistics generation must operate only on previously generated metadata artifacts.
+- Do not reload or parse MIDI files during Step 6.
 
-Step 5 — Tokenization Pipeline
+Primary Inputs:
+data/interim/track_metadata.csv
+data/interim/genre_metadata.csv
+data/interim/instrument_families.csv
 
-Current State:
+Secondary Input:
+data/interim/midi_validation_results.csv
 
-✓ Dataset Loader Complete
-✓ MIDI Validation Pipeline Complete
-✓ Metadata Extraction Complete
-✓ Genre Metadata Extraction Complete
-✓ Genre Analysis Complete
-✓ Tests Passing (14 passed)
+Metadata Keys:
+track_id
+midi_path
 
-The architecture and roadmap are already approved.
-Do not redesign anything.
-Implement only the current step.
+Important:
+track_id is NOT a unique identifier in LMD-Matched.
+Multiple MIDI files may correspond to the same track_id.
+midi_path is the unique file-level identifier.
+Any joins involving per-MIDI statistics must preserve midi_path.
+
+Required Statistics:
+- Total MIDI files
+- Total unique tracks
+- Genre distribution
+- Genre percentages
+- Instrument family distribution
+- Instrument family percentages
+- Genre × Instrument family distribution
+- Average instrument families per MIDI
+- Most common instrument family combinations
+
+Expected Outputs:
+data/reports/dataset_summary.json
+data/reports/genre_statistics.csv
+data/reports/instrument_statistics.csv
+data/reports/genre_instrument_statistics.csv
+
+Do NOT:
+- Reprocess MIDI files
+- Extract new metadata
+- Perform dataset cleaning
+- Remove files
+- Detect duplicates
+- Create train/validation/test splits
+
+Step 6 is a metadata analysis and reporting stage only.
+
+Step 6 Completion Requirements
+- Dataset summary generated
+- Genre statistics generated
+- Instrument statistics generated
+- Genre × instrument statistics generated
+- Report artifacts saved under data/reports/
+
+Implementation Protocol:
+
 Begin with:
 Part 1 — Goal
 Part 2 — Design Review
+
 Then wait for approval before writing code.

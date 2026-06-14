@@ -1,6 +1,7 @@
-from music_generation.data.metadata_extractor import (
-    MetadataExtractor,
-)
+# uv run python scripts/run_metadata_extraction.py
+
+from music_generation.data.metadata_extractor import MetadataExtractor
+
 
 extractor = MetadataExtractor()
 

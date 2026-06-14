@@ -1,17 +1,26 @@
 import pandas as pd
 
 df = pd.read_csv(
-    "data/interim/genre_metadata.csv"
+    "data/interim/instrument_families.csv"
 )
 
-print(df.head())
-print()
+families = [
+    "drums",
+    "bass",
+    "guitar",
+    "piano",
+    "strings",
+    "other",
+]
 
-print("Rows:", len(df))
+for family in families:
+    count = (
+        df["instrument_families"]
+        .str.contains(family)
+        .sum()
+    )
 
-print(
-    df["genres"]
-    .str.split("|", regex=False)
-    .explode()
-    .value_counts()
-)
+    print(
+        f"{family}: "
+        f"{count:,}"
+    )

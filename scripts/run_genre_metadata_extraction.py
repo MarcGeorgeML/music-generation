@@ -1,3 +1,5 @@
+# uv run python scripts/run_genre_metadata_extraction.py
+
 from pathlib import Path
 from collections import Counter
 

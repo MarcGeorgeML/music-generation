@@ -1,3 +1,5 @@
+# uv run python scripts/run_midi_validator.py
+
 from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
