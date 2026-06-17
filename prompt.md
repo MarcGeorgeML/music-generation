@@ -29,15 +29,6 @@ Dataset Strategy:
 - MIDI files sourced from LMD-Matched
 - Genre labels derived from Million Song Dataset metadata
 
-Dataset Cleaning Requirements:
-
-- Remove corrupted MIDI files
-- Remove MIDI files with no instruments
-- Remove MIDI files with no notes
-- Remove unlabeled MIDI files
-- Remove extremely short MIDI files
-- Remove extremely long MIDI files
-
 Instrument Family Detection:
 
 - Detect instrument families present in every track.
@@ -293,165 +284,6 @@ Wait for human approval before proceeding.
 
 ---
 
-## PHASE 1 — DATASET PIPELINE
-
-STEP 1 — Repository Structure Setup
-STEP 2 — Dataset Loader
-STEP 3 — MIDI Validation Pipeline
-STEP 4 — Genre Metadata Extraction
-STEP 5 — Instrument Family Extraction
-STEP 6 — Dataset Statistics Generation
-STEP 7 — Dataset Cleaning Pipeline
-STEP 8 — Duplicate Detection
-STEP 9 — Train / Validation / Test Split Creation
-MILESTONE 1 — Dataset Ready
-
-Deliverables:
-
-- Clean dataset
-- Genre distributions
-- Split files
-- Dataset report
-
-Human approval required.
-
----
-
-## PHASE 2 — TOKENIZATION PIPELINE
-
-STEP 10 — REMI Vocabulary Design
-STEP 11 — REMI Encoder
-STEP 12 — REMI Decoder
-STEP 13 — Round-Trip MIDI Reconstruction Testing
-STEP 14 — Vocabulary Builder
-
-MILESTONE 2 — Tokenization Pipeline Complete
-
-Deliverables:
-- REMI encoder
-- REMI decoder
-- Vocabulary
-- Reconstruction tests
-
-Human approval required.
-
----
-
-## PHASE 3 — GENRE CLASSIFIER
-
-STEP 15 — Genre Classifier Dataset Pipeline
-STEP 16 — Genre Classifier Architecture
-STEP 17 — Genre Classifier Training Pipeline
-STEP 18 — Genre Classifier Evaluation
-
-Target:
-70%+ Accuracy
-
-MILESTONE 3 — Genre Classifier Complete
-
-Deliverables:
-- Trained classifier
-- Accuracy report
-- Confusion matrix
-- Saved checkpoint
-
-Human approval required.
-
----
-
-## PHASE 4 — MUSIC TRANSFORMER
-
-STEP 19 — Relative Position Attention Module
-STEP 20 — Transformer Block
-STEP 21 — Music Transformer Architecture
-STEP 22 — Autoregressive Dataset Loader
-STEP 23 — Training Loop
-STEP 24 — Checkpointing System
-STEP 25 — Experiment Tracking
-STEP 26 — Model Training
-
-MILESTONE 4 — Music Transformer Trained
-
-Deliverables:
-- Trained checkpoints
-- Loss curves
-- Perplexity curves
-
-Human approval required.
-
----
-
-## PHASE 5 — GENERATION PIPELINE
-
-STEP 27 — Sampling Strategies
-
-Implement:
-- Temperature Sampling
-- Top-k Sampling
-- Top-p Sampling
-
-STEP 28 — MIDI Generation Pipeline
-STEP 29 — Generation CLI
-
-MILESTONE 5 — Generation System Complete
-
-Deliverables:
-- Genre-conditioned generation
-- Generated MIDI samples
-- Generation documentation
-
-Human approval required.
-
----
-
-## PHASE 6 — EVALUATION PIPELINE
-
-STEP 30 — Perplexity Evaluation
-STEP 31 — Genre Classification Evaluation
-STEP 32 — Pitch Distribution Analysis
-STEP 33 — Duration Distribution Analysis
-STEP 34 — Rhythm Distribution Analysis
-STEP 35 — Evaluation Report Generation
-
-MILESTONE 6 — Evaluation Complete
-
-Deliverables:
-- Evaluation report
-- Metric tables
-- Statistical comparison figures
-
-Human approval required.
-
----
-
-## PHASE 7 — INTERPRETABILITY
-
-STEP 36 — Attention Extraction
-STEP 37 — Attention Visualization
-STEP 38 — Genre Token Influence Analysis
-STEP 39 — Long-Range Dependency Analysis
-
-MILESTONE 7 — Interpretability Complete
-
-Deliverables:
-
-- Attention heatmaps
-- Attention analysis report
-- Genre influence analysis
-- Long-range dependency examples
-
-Human approval required.
-
----
-
-## PHASE 8 — PROJECT COMPLETION
-
-STEP 40 — README Creation
-STEP 41 — Experiment Documentation
-STEP 42 — Final Project Packaging
-
----
-
 ## FINAL COMPLETION CHECKLIST
 
 Project completion requires all of the following:
@@ -480,7 +312,7 @@ Current Phase:
 Phase 1 — Dataset Pipeline
 
 Current Step:
-Step 7 — Dataset Cleaning Pipeline
+Step 9 — Dataset Split Generation
 
 Current Status:
 NOT STARTED
@@ -495,6 +327,8 @@ NOT STARTED
 ✓ Step 4 — Genre Metadata Extraction
 ✓ Step 5 — Instrument Family Extraction
 ✓ Step 6 — Dataset Statistics Generation
+✓ Step 7 — Dataset Cleaning Pipeline
+✓ Step 8 — Duplicate Detection
 ✓ Tests Passing
 
 ---
@@ -502,13 +336,7 @@ NOT STARTED
 ## Current Repository Structure
 
 music-generation/
-├── configs/
-│   ├── dataset/
-│   ├── tokenizer/
-│   ├── classifier/
-│   ├── transformer/
-│   └── generation/
-│
+
 ├── data/
 │   ├── raw/
 │   │   ├── lmd_matched/
@@ -518,16 +346,23 @@ music-generation/
 │   │   ├── midi_validation_results.csv
 │   │   ├── genre_metadata.csv
 │   │   ├── track_metadata.csv
+│   │   ├── midi_durations.csv
 │   │   └── instrument_families.csv
 │   │
 │   ├── reports/
 │   │   ├── dataset_analysis.md
+│   │   ├── dataset_cleaning_report.json
 │   │   ├── dataset_summary.json
 │   │   ├── genre_instrument_statistics.csv
-│   │   └── genre_statistics.csv
-│   │   └── instrument_statistics.csv
+│   │   ├── genre_statistics.csv
+│   │   ├── instrument_statistics.csv
+│   │   └── midi_duration_statistics.json
 │   │
 │   ├── processed/
+│   │   ├── clean_dataset.csv
+│   │   ├── clean_genre_metadata.csv
+│   │   └── clean_instrument_families.csv
+│   │
 │   └── splits/
 │
 ├── checkpoints/
@@ -543,7 +378,8 @@ music-generation/
 │   ├── analyze_tags.py
 │   ├── analyze_genres.py
 │   ├── run_instrument_family_extraction.py
-│   └── run_dataset_statistics.py
+│   ├── run_dataset_statistics.py
+│   └── run_dataset_cleaner.py
 │
 ├── tests/
 │   ├── data/
@@ -551,7 +387,9 @@ music-generation/
 │   │   ├── test_midi_validator.py
 │   │   ├── test_genre_metadata_extractor.py
 │   │   ├── test_instrument_family_extractor.py
-│   │   └── test_dataset_statistics.py
+│   │   ├── test_dataset_statistics.py
+│   │   ├── test_metadata_extractor.py
+│   │   └── test_dataset_cleaner.py
 │   │
 │   ├── tokenization/
 │   ├── classifier/
@@ -559,6 +397,20 @@ music-generation/
 │   └── generation/
 │
 ├── src/
+│   ├── configs/
+│   │   ├── dataset/
+│   │   │   ├── common_config.py
+│   │   │   ├── dataset_cleaner_config.py
+│   │   │   ├── dataset_statistics_config.py
+│   │   │   ├── genre_metadata_extractor_config.py
+│   │   │   ├── instrument_family_extractor_config.py
+│   │   │   └── metadata_extractor_config.py
+│   │   │
+│   │   ├── tokenizer/
+│   │   ├── classifier/
+│   │   ├── transformer/
+│   │   └── generation/
+│   │
 │   ├── music_generation/
 │   │   ├── data/
 │   │   │   ├── dataset_loader.py
@@ -566,7 +418,8 @@ music-generation/
 │   │   │   ├── genre_metadata_extractor.py
 │   │   │   ├── metadata_extractor.py
 │   │   │   ├── instrument_family_extractor.py
-│   │   │   └── dataset_statistics.py
+│   │   │   ├── dataset_statistics.py
+│   │   │   └── dataset_cleaner.py
 │   │   │
 │   │   ├── tokenization/
 │   │   ├── classifier/
@@ -597,222 +450,98 @@ from src...
 
 ---
 
-## Dataset Information
+## Current Dataset State
 
-Dataset:
-Lakh MIDI Dataset — Matched Subset (LMD-Matched)
-
-Associated Metadata:
-LMD-Matched HDF5 Metadata
-
-Total Metadata Records:
+Initial Files:
 113,324
 
-Validated MIDI Files:
-115,182
+Retained Files:
+94,665
 
-Invalid MIDI Files:
-1,007
+Retention Rate:
+83.53%
 
-Unique Tracks:
-30,898
+## Available Input Artifact
 
----
+File:
+data/processed/clean_dataset.csv
 
-## MIDI Validation Pipeline Status
-
-Implemented Components:
-✓ MidiValidationResult
-✓ MidiValidator
-✓ run_midi_validator.py
-
-Validation Output:
-data/interim/midi_validation_results.csv
-
-Output Schema:
-file_id
-track_id
-file_path
-is_valid
-failure_reason
-
-Failure Reasons:
-- parse_error
-- no_instruments
-- no_notes
-
----
-
-## Genre Metadata Extraction Status
-
-Implemented Components:
-✓ GenreMetadataExtractor
-✓ MetadataExtractor
-✓ run_genre_metadata_extraction.py
-✓ run_metadata_extraction.py
-✓ analyze_tags.py
-✓ analyze_genres.py
-
-Metadata Output:
-data/interim/track_metadata.csv
-
-Output Schema:
-track_id
+Columns:
 midi_path
-artist_terms
-musicbrainz_tags
-
-Genre Output:
-data/interim/genre_metadata.csv
-
-Output Schema:
 track_id
-midi_path
 genres
 genre_source
-
-Records Created:
-113,324
-
-Genre Records Saved:
-94,951
-
-Final Genre Distribution:
-- Rock: 52,101 (46.46%)
-- Pop: 28,900 (25.77%)
-- Electronic: 19,876 (17.72%)
-- Jazz: 6,697 (5.97%)
-- Hip Hop: 4,570 (4.08%)
-
----
-
-## Instrument Family Extraction Status
-
-Implemented Components:
-✓ InstrumentFamilyExtractor
-✓ run_instrument_family_extraction.py
-✓ test_instrument_family_extractor.py
-
-Output:
-data/interim/instrument_families.csv
-
-Output Schema:
-track_id
-midi_path
 instrument_families
 
-Records Created:
-113,324
+Records:
+94,665
 
-Raw Extracted Families:
-- piano
-- guitar
-- bass
-- strings
-- drums
-- other
-
-Architecture Decision:
-The "other" family will not be used by downstream components.
-Approved Instrument Families Going Forward:
-
-- piano
-- guitar
-- bass
-- strings
-- drums
-
-"other" will be removed during the Dataset Cleaning Pipeline.
-
----
-
-## Dataset Statistics Generation Status
-
-Implemented Components:
-✓ DatasetStatisticsConfig
-✓ DatasetStatisticsResult
-✓ dataset_statistics.py
-✓ run_dataset_statistics.py
-✓ test_dataset_statistics.py
-
-Outputs:
-data/reports/dataset_summary.json
-data/reports/genre_statistics.csv
-data/reports/instrument_statistics.csv
-data/reports/genre_instrument_statistics.csv
-
-Dataset Statistics Summary:
-- Total MIDI Files: 113,324
-- Total Unique Tracks: 30,574
-- Genre Classes: 5
-- Instrument Families: 6 (raw extraction)
-- Average Instrument Families per MIDI: 4.56
-
-Most Common Instrument Combination:
-drums + bass + guitar + piano + strings + other
-
-Dataset Assessment:
-* Dataset size sufficient for Music Transformer training.
-* Multi-instrument arrangements dominate the dataset.
-* Genre coverage is acceptable across all target genres.
-* Instrument family extraction validated successfully.
-* Dataset approved to proceed to cleaning stage.
-
----
-
-## Current Step — Dataset Cleaning Pipeline
+## Current Step — Dataset Split Generation
 
 Objective:
-Create the cleaned training corpus using previously generated metadata artifacts.
+Create reproducible train, validation, and test splits from the cleaned dataset.
 
 Output Directory:
 data/processed/
 
 Approved Inputs:
-data/interim/midi_validation_results.csv
-data/interim/genre_metadata.csv
-data/interim/instrument_families.csv
-data/interim/track_metadata.csv
-
-Cleaning Requirements:
-1. Remove invalid MIDI files.
-2. Remove MIDI files without genre labels.
-3. Remove the "other" instrument family from all instrument assignments.
-4. Remove MIDI files that contain no supported instrument families after filtering.
-5. Remove extremely short MIDI files.
-6. Remove extremely long MIDI files.
-7. Generate cleaning statistics and retention reports.
+data/processed/clean_dataset.csv
 
 Metadata Keys:
-track_id
 midi_path
 
 Important:
-track_id is NOT unique.
-midi_path remains the canonical file-level identifier throughout cleaning.
+* `midi_path` remains the canonical file-level identifier.
+* Each MIDI file must appear in exactly one split.
+* No overlap is allowed between train, validation, and test sets.
+
+Split Requirements:
+1. Generate train, validation, and test splits.
+2. Random Seed: 42
+3. Preserve genre distribution as closely as possible across splits.
+4. Ensure every MIDI file appears in only one split.
+5. Generate split statistics.
+
+Recommended Split Ratio:
+Train      80%
+Validation 10%
+Test       10%
+
+Genre Stratification Strategy:
+Use the first genre in the genres field as the primary genre.
+
+Examples:
+rock|pop -> rock
+electronic|pop -> electronic
+jazz -> jazz
+
+Stratification should be performed using the primary genre only.
 
 Expected Outputs:
-data/processed/clean_dataset.csv
-data/processed/clean_genre_metadata.csv
-data/processed/clean_instrument_families.csv
-data/reports/dataset_cleaning_report.json
+data/processed/train.csv
+data/processed/validation.csv
+data/processed/test.csv
+data/reports/dataset_split_report.json
 
 Do NOT:
-- Detect duplicates
-- Create train/validation/test splits
-- Build tokenization components
-- Implement REMI encoding
-- Implement REMI decoding
+* Detect duplicates
+* Perform additional dataset cleaning
+* Implement tokenization
+* Build vocabularies
+* Implement REMI encoding
+* Implement REMI decoding
+* Create training sequences
 
-Step 7 is a dataset filtering and retention stage only.
+Step 9 is a dataset partitioning stage only.
 
-Step 7 Completion Requirements:
-- Invalid files removed
-- Unlabeled files removed
-- "other" family removed
-- Empty instrument assignments removed
-- Cleaning statistics generated
-- Cleaned metadata artifacts saved
+Step 9 Completion Requirements:
+
+* Train split generated
+* Validation split generated
+* Test split generated
+* No overlap between splits
+* Split statistics generated
+* Output artifacts saved
 
 Implementation Protocol:
 
@@ -821,3 +550,4 @@ Part 1 — Goal
 Part 2 — Design Review
 
 Then wait for approval before writing code.
+

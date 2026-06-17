@@ -1,11 +1,12 @@
 # uv run python scripts/run_midi_validator.py
 
-from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
 
 from music_generation.data.dataset_loader import DatasetLoader
 from music_generation.data.midi_validator import MidiValidator
+
+from configs.dataset.common_config import RawDatasetFiles, DatasetPaths, DatasetFiles
 
 
 def main() -> None:
@@ -17,7 +18,7 @@ def main() -> None:
     validator = MidiValidator()
 
     print("Scanning dataset...")
-    dataset_df = loader.scan("data/raw/lmd_matched")
+    dataset_df = loader.scan(str(RawDatasetFiles.LMD_MATCHED_DIR))
     # print(len(dataset_df))
     print(f"Found {len(dataset_df):,} MIDI files")
     results = []
@@ -44,9 +45,9 @@ def main() -> None:
         )
 
     results_df = pd.DataFrame(results)
-    output_dir = Path("data/interim")
+    output_dir = DatasetPaths.INTERIM_DIR
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "midi_validation_results.csv"
+    output_path = output_dir / DatasetFiles.MIDI_VALIDATION_CSV
     results_df.to_csv(
         output_path,
         index=False,

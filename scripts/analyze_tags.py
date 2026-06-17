@@ -3,8 +3,10 @@
 from collections import Counter
 import pandas as pd
 
+from configs.dataset.common_config import DatasetPaths, DatasetFiles
 
-df = pd.read_csv("data/interim/track_metadata.csv")
+
+df = pd.read_csv(str(DatasetPaths.INTERIM_DIR / DatasetFiles.GENRE_METADATA_CSV))
 artist_counter = Counter()
 mb_counter = Counter()
 

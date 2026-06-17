@@ -6,39 +6,21 @@ produces dataset-level summary reports without parsing MIDI files.
 
 from __future__ import annotations
 
-import ast
+
 import json
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 from tqdm import tqdm
 import pandas as pd
 
-SUPPORTED_INSTRUMENT_ORDER = [
-    "drums",
-    "bass",
-    "guitar",
-    "piano",
-    "strings",
-    "other",
-]
+from configs.dataset.common_config import DatasetFiles, DatasetPaths
 
-
-@dataclass(frozen=True)
-class DatasetStatisticsConfig:
-    track_metadata_path: Path
-    genre_metadata_path: Path
-    instrument_families_path: Path
-    validation_results_path: Path
-    output_dir: Path
-
-
-@dataclass(frozen=True)
-class DatasetStatisticsResult:
-    summary_path: Path
-    genre_statistics_path: Path
-    instrument_statistics_path: Path
-    genre_instrument_statistics_path: Path
+from configs.dataset.dataset_statistics_config import (
+    DatasetStatisticsConstants, 
+    DatasetStatisticsOutputs, 
+    DatasetStatisticsConfig, 
+    DatasetStatisticsResult
+)
+from music_generation.utils.utils import parse_list_value
 
 
 def _ensure_output_dir(path: Path) -> None:
@@ -51,56 +33,18 @@ def _read_csv(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def _parse_list_value(value: object) -> list[str]:
-    """Parse list-like metadata stored as CSV strings.
 
-    Accepted formats:
-    - Python list literal: "['Pop', 'Rock']"
-    - JSON list: '["Pop", "Rock"]'
-    - Delimited strings: "Pop; Rock" or "Pop, Rock"
-    - Single token strings: "Pop"
-    - Empty / null values -> []
-    """
-
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return []
-    if isinstance(value, list):
-        return [str(item).strip() for item in value if str(item).strip()]
-
-    text = str(value).strip()
-    if not text or text.lower() in {"nan", "none", "null", "[]"}:
-        return []
-
-    parsed: object = text
-    if (text.startswith("[") and text.endswith("]")) or (
-        text.startswith("(") and text.endswith(")")
-    ):
-        for loader in (json.loads, ast.literal_eval):
-            try:
-                parsed = loader(text)
-                break
-            except Exception:
-                continue
-
-    if isinstance(parsed, (list, tuple, set)):
-        return [str(item).strip() for item in parsed if str(item).strip()]
-
-    for delimiter in ("|", ";", ","):
-        if delimiter in text:
-            return [part.strip() for part in text.split(delimiter) if part.strip()]
-
-    return [text]
 
 
 def _parse_instrument_family_list(value: object) -> list[str]:
-    families = [family.lower() for family in _parse_list_value(value)]
+    families = [family.lower() for family in parse_list_value(value)]
     return [family for family in families if family]
 
 
 def _split_genres_frame(df: pd.DataFrame, genre_col: str = "genres") -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for _, row in tqdm(df.iterrows(), total=len(df), desc="Genres"):
-        genres = _parse_list_value(row.get(genre_col))
+        genres = parse_list_value(row.get(genre_col))
         for genre in genres:
             rows.append(
                 {
@@ -112,9 +56,7 @@ def _split_genres_frame(df: pd.DataFrame, genre_col: str = "genres") -> pd.DataF
     return pd.DataFrame(rows)
 
 
-def _split_instrument_frame(
-    df: pd.DataFrame, family_col: str = "instrument_families"
-) -> pd.DataFrame:
+def _split_instrument_frame(df: pd.DataFrame, family_col: str = "instrument_families") -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for _, row in tqdm(df.iterrows(), total=len(df), desc="Instrument families"):
         families = _parse_instrument_family_list(row.get(family_col))
@@ -278,7 +220,7 @@ def _compute_instrument_statistics(
     )
     grouped["instrument_family"] = pd.Categorical(
         grouped["instrument_family"],
-        categories=SUPPORTED_INSTRUMENT_ORDER,
+        categories=DatasetStatisticsConstants.SUPPORTED_INSTRUMENT_ORDER,
         ordered=True,
     )
     grouped = grouped.sort_values(
@@ -340,7 +282,9 @@ def _compute_instrument_family_combinations(joined: pd.DataFrame) -> pd.DataFram
         if not families:
             continue
         ordered = [
-            family for family in SUPPORTED_INSTRUMENT_ORDER if family in set(families)
+            family
+            for family in DatasetStatisticsConstants.SUPPORTED_INSTRUMENT_ORDER
+            if family in set(families)
         ]
         combination = " + ".join(ordered)
         rows.append(
@@ -462,10 +406,10 @@ def generate_dataset_statistics(
         joined, genre_stats, instrument_stats, genre_instrument_stats, combination_stats
     )
 
-    summary_path = config.output_dir / "dataset_summary.json"
-    genre_path = config.output_dir / "genre_statistics.csv"
-    instrument_path = config.output_dir / "instrument_statistics.csv"
-    genre_instrument_path = config.output_dir / "genre_instrument_statistics.csv"
+    summary_path = config.output_dir / DatasetStatisticsOutputs.SUMMARY_JSON
+    genre_path = config.output_dir / DatasetStatisticsOutputs.GENRE_STATISTICS_CSV
+    instrument_path = config.output_dir / DatasetStatisticsOutputs.INSTRUMENT_STATISTICS_CSV
+    genre_instrument_path = config.output_dir / DatasetStatisticsOutputs.GENRE_INSTRUMENT_STATISTICS_CSV
 
     summary_path.write_text(
         json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
@@ -484,40 +428,12 @@ def generate_dataset_statistics(
 
 def default_config(project_root: Path | None = None) -> DatasetStatisticsConfig:
     root = project_root or Path.cwd()
+    interim_dir = root / DatasetPaths.INTERIM_DIR
+    reports_dir = root / DatasetPaths.REPORTS_DIR
     return DatasetStatisticsConfig(
-        track_metadata_path=root / "data" / "interim" / "track_metadata.csv",
-        genre_metadata_path=root / "data" / "interim" / "genre_metadata.csv",
-        instrument_families_path=root / "data" / "interim" / "instrument_families.csv",
-        validation_results_path=root
-        / "data"
-        / "interim"
-        / "midi_validation_results.csv",
-        output_dir=root / "data" / "reports",
+        track_metadata_path=interim_dir / DatasetFiles.TRACK_METADATA_CSV,
+        genre_metadata_path=interim_dir / DatasetFiles.GENRE_METADATA_CSV,
+        instrument_families_path=interim_dir / DatasetFiles.INSTRUMENT_FAMILIES_CSV,
+        validation_results_path=interim_dir / DatasetFiles.MIDI_VALIDATION_CSV,
+        output_dir=reports_dir,
     )
-
-
-def main(argv: Sequence[str] | None = None) -> int:
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Generate dataset statistics reports from metadata CSVs."
-    )
-    parser.add_argument(
-        "--project-root",
-        type=Path,
-        default=Path.cwd(),
-        help="Project root containing data/.",
-    )
-    args = parser.parse_args(argv)
-
-    result = generate_dataset_statistics(default_config(args.project_root))
-    print("Generated dataset statistics reports:")
-    print(f"- {result.summary_path}")
-    print(f"- {result.genre_statistics_path}")
-    print(f"- {result.instrument_statistics_path}")
-    print(f"- {result.genre_instrument_statistics_path}")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

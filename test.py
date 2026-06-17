@@ -1,6 +1,7 @@
 import pandas as pd
 
-df = pd.read_csv("data/interim/instrument_families.csv")
+df = pd.read_csv(
+    "data/processed/clean_dataset.csv"
+)
 
-print(df.columns)
-print(df["instrument_families"].head(20).tolist())
+print(df["midi_path"].duplicated().sum())

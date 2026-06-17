@@ -1,88 +1,26 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 from tqdm import tqdm
 import pandas as pd
-import h5py
 
-GENRE_TAGS = {
-    "rock": {
-        "rock",
-        "classic rock",
-        "alternative rock",
-        "hard rock",
-        "folk rock",
-        "indie rock",
-        "progressive rock",
-        "punk",
-        "punk rock",
-        "new wave",
-        "soft rock",
-        "pop rock",
-    },
-    "pop": {
-        "pop",
-        "europop",
-        "synthpop",
-        "dance pop",
-        "teen pop",
-        "power pop",
-        "indie pop",
-    },
-    "electronic": {
-        "electronic",
-        "electro",
-        "house",
-        "techno",
-        "trance",
-        "electronica",
-        "downtempo",
-        "ambient",
-    },
-    "jazz": {
-        "jazz",
-        "acid jazz",
-        "smooth jazz",
-        "latin jazz",
-        "bebop",
-        "fusion",
-        "jazz fusion",
-        "soul jazz",
-    },
-    "hip_hop": {
-        "hip hop",
-        "rap",
-        "rnb",
-        "hip-hop",
-    },
-}
-
-@dataclass(slots=True)
-class TrackGenreMetadata:
-    track_id: str
-    genres: list[str]
-    genre_source: str | None
-    scores: dict[str, int]
-    artist_terms: list[str]
-    musicbrainz_tags: list[str]
-
-
-@dataclass(slots=True)
-class MidiGenreRecord:
-    track_id: str
-    midi_path: str
-    genres: list[str]
-    genre_source: str | None
+from configs.dataset.genre_metadata_extractor_config import (
+    GenreMetadataConstants,
+    GenreMetadataDefaults,
+    TrackGenreMetadata,
+    MidiGenreRecord,
+)
 
 
 class GenreMetadataExtractor:
     """
-    Extract normalized genres from LMD-Matched metadata.
+    Extract normalized genres from track metadata CSV.
+
+    Reads artist_terms and musicbrainz_tags produced by MetadataExtractor
+    and assigns normalized genres via keyword scoring.
 
     Supported genres:
-
         - rock
         - pop
         - electronic
@@ -90,24 +28,18 @@ class GenreMetadataExtractor:
         - hip_hop
 
     Genre source priority:
-
         1. MusicBrainz tags
         2. Artist terms
     """
 
-
-    def score_tags(self,tags: Iterable[str],) -> dict[str, int]:
-        scores = {genre: 0 for genre in GENRE_TAGS}
+    def score_tags(self, tags: Iterable[str]) -> dict[str, int]:
+        scores = {genre: 0 for genre in GenreMetadataConstants.GENRE_TAGS}
         for tag in map(str.lower, tags):
-            for genre, keywords in GENRE_TAGS.items():
-                scores[genre] += sum(
-                    keyword in tag
-                    for keyword in keywords
-                )
+            for genre, keywords in GenreMetadataConstants.GENRE_TAGS.items():
+                scores[genre] += sum(keyword in tag for keyword in keywords)
         return scores
 
-
-    def assign_genre(self,tags: Iterable[str],) -> tuple[list[str], dict[str, int]]:
+    def assign_genre(self, tags: Iterable[str]) -> tuple[list[str], dict[str, int]]:
         scores = self.score_tags(tags)
         max_score = max(scores.values())
         if max_score == 0:
@@ -115,109 +47,88 @@ class GenreMetadataExtractor:
         genres = [genre for genre, score in scores.items() if score == max_score]
         return genres, scores
 
-
-    def _decode_tags(self,values,) -> list[str]:
-        return [
-            (v.decode("utf-8", errors="ignore")if isinstance(v, bytes)else str(v)).strip().lower() for v in values
-        ]
-
-
-    def load_tags_from_h5(self,h5_path: str | Path,) -> tuple[list[str], list[str]]:
-
-        with h5py.File(h5_path, "r") as h5_file:
-            def read(dataset_path: str) -> list[str]:
-                try:
-                    return self._decode_tags(h5_file[dataset_path][:])  # type: ignore
-                except Exception:
-                    return []
-            artist_terms = read("metadata/artist_terms")
-            musicbrainz_tags = read("musicbrainz/artist_mbtags")
-        return artist_terms, musicbrainz_tags
-
-
-    def extract_track_genre(self,track_id: str,h5_path: str | Path,) -> TrackGenreMetadata:
-
-        artist_terms, musicbrainz_tags = self.load_tags_from_h5(h5_path)
+    def extract_track_genre(
+        self,
+        track_id: str,
+        artist_terms: list[str],
+        musicbrainz_tags: list[str],
+    ) -> TrackGenreMetadata:
         tags = musicbrainz_tags if musicbrainz_tags else artist_terms
-        genre_source = "musicbrainz_tags" if musicbrainz_tags else "artist_terms"
+        genre_source = (
+            GenreMetadataDefaults.MUSICBRAINZ_SOURCE
+            if musicbrainz_tags
+            else GenreMetadataDefaults.ARTIST_TERMS_SOURCE
+        )
         genres, scores = self.assign_genre(tags)
-        genre_source = genre_source if genres else None
 
         return TrackGenreMetadata(
             track_id=track_id,
             genres=genres,
-            genre_source=genre_source,
+            genre_source=genre_source if genres else None,
             scores=scores,
             artist_terms=artist_terms,
             musicbrainz_tags=musicbrainz_tags,
         )
 
-
-    def find_track_ids(self,h5_root: str | Path,) -> list[tuple[str, Path]]:
-
-        h5_root = Path(h5_root)
-        return [(h5_file.stem, h5_file) for h5_file in h5_root.rglob("*.h5")]
-
-
-    def load_validation_index(self,validation_csv: str | Path,) -> dict[str, list[str]]:
-        df = pd.read_csv(validation_csv)
-        df = df[df["is_valid"]]
-        return df.groupby("track_id")["file_path"].apply(list).to_dict()  # type: ignore
-
-
-    def create_records_for_track(
-        self,
-        track_id: str,
-        h5_path: str | Path,
-        validation_index: dict[str, list[str]],
-    ) -> list[MidiGenreRecord]:
-
-        metadata = self.extract_track_genre(track_id, h5_path)
-        if not metadata.genres:
+    @staticmethod
+    def _parse_pipe_column(value: object) -> list[str]:
+        if pd.isna(value):  # type: ignore[arg-type]
             return []
-        midi_paths = validation_index.get(
-            track_id,
-            [],
-        )
-        return [
-            MidiGenreRecord(
-                track_id=track_id,
-                midi_path=midi_path,
-                genres=metadata.genres,
-                genre_source=metadata.genre_source,
-            )
-            for midi_path in midi_paths
-        ]
-
+        return [t.strip() for t in str(value).split("|") if t.strip()]
 
     def scan_dataset(
         self,
-        h5_root: str | Path,
-        validation_csv: str | Path,
+        track_metadata_csv: str | Path,
         limit: int | None = None,
     ) -> list[MidiGenreRecord]:
+        """
+        Assign genres to every row in track_metadata.csv.
+
+        Parameters
+        ----------
+        track_metadata_csv:
+            Output of MetadataExtractor — contains track_id, midi_path,
+            artist_terms, musicbrainz_tags.
+        limit:
+            If set, process only the first N rows (useful for testing).
+        """
+        df = pd.read_csv(track_metadata_csv)
+
+        if limit is not None:
+            df = df.head(limit)
 
         records: list[MidiGenreRecord] = []
-        validation_index = self.load_validation_index(validation_csv)
-        valid_track_ids = set(validation_index.keys())
-        track_ids = [
-            (track_id, h5_path)
-            for track_id, h5_path in self.find_track_ids(h5_root)
-            if track_id in valid_track_ids
-        ]
-        print(f"Valid tracks: {len(track_ids):,}")
-        if limit is not None:
-            track_ids = track_ids[:limit]
-        for track_id, h5_path in tqdm(track_ids, desc="Scanning tracks", unit="track"):
-            records.extend(
-                self.create_records_for_track(
-                    track_id=track_id,
-                    h5_path=h5_path,
-                    validation_index=validation_index,
+
+        for row in tqdm(
+            df.itertuples(index=False),
+            total=len(df),
+            desc="Extracting genres",
+            unit="row",
+        ):
+            artist_terms = self._parse_pipe_column(row.artist_terms)
+            musicbrainz_tags = self._parse_pipe_column(row.musicbrainz_tags)
+
+            metadata = self.extract_track_genre(
+                track_id=str(row.track_id),
+                artist_terms=artist_terms,
+                musicbrainz_tags=musicbrainz_tags,
+            )
+
+            if not metadata.genres:
+                continue
+
+            records.append(
+                MidiGenreRecord(
+                    track_id=str(row.track_id),
+                    midi_path=str(row.midi_path),
+                    genres=metadata.genres,
+                    genre_source=metadata.genre_source,
                 )
             )
-        return records
 
+        print(f"Rows processed:      {len(df):,}")
+        print(f"Records with genre:  {len(records):,}")
+        return records
 
     def save_records_to_csv(
         self,
@@ -238,19 +149,3 @@ class GenreMetadataExtractor:
                 for r in records
             ]
         ).to_csv(output_path, index=False)
-
-
-if __name__ == "__main__":
-    extractor = GenreMetadataExtractor()
-
-    records = extractor.scan_dataset(
-        h5_root="data/raw/lmd_matched_h5",
-        validation_csv="data/interim/midi_validation_results.csv",
-        limit=100,
-    )
-
-    print(f"Found {len(records)} MIDI files with genre metadata")
-    print(records[:5])
-
-    for record in records:
-        print(record)

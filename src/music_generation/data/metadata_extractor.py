@@ -3,33 +3,17 @@ from pathlib import Path
 from tqdm import tqdm
 import pandas as pd
 
-from music_generation.data.genre_metadata_extractor import (
-    GenreMetadataExtractor,
-)
+from music_generation.utils.utils import load_validation_index, load_tags_from_h5
+from configs.dataset.metadata_extractor_config import TrackMetadataRecord
 
 
-@dataclass(slots=True)
-class TrackMetadataRecord:
-    track_id: str
-    midi_path: str
-    artist_terms: list[str]
-    musicbrainz_tags: list[str]
 
 
 class MetadataExtractor:
 
-    def __init__(self) -> None:
-        self.genre_extractor = (GenreMetadataExtractor())
-
-    def load_validation_index(self,validation_csv: str | Path,) -> dict[str, list[str]]:
-        df = pd.read_csv(validation_csv)
-        df = df[df["is_valid"]]
-        grouped = df.groupby("track_id")["file_path"].apply(list).to_dict()
-        return {str(k): [str(p) for p in v] for k, v in grouped.items()}
-
     def scan(self,h5_root: str | Path,validation_csv: str | Path,) -> list[TrackMetadataRecord]:
 
-        validation_index = (self.load_validation_index(validation_csv))
+        validation_index = load_validation_index(validation_csv)
         records: list[TrackMetadataRecord] = []
 
         for track_id, midi_paths in tqdm(
@@ -49,7 +33,7 @@ class MetadataExtractor:
             if not h5_path.exists():
                 continue
 
-            (artist_terms,musicbrainz_tags,) = (self.genre_extractor.load_tags_from_h5(h5_path))
+            (artist_terms,musicbrainz_tags,) = (load_tags_from_h5(h5_path))
 
             if not artist_terms and not musicbrainz_tags:
                 continue

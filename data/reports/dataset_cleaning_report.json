@@ -1,0 +1,10 @@
+{
+  "initial_files": 113324,
+  "retained_files": 94665,
+  "retention_rate": 0.8353482051463061,
+  "removed_invalid_files": 0,
+  "removed_missing_genres": 18373,
+  "removed_empty_instrument_assignments": 286,
+  "removed_short_files": 0,
+  "removed_long_files": 0
+}

@@ -3,6 +3,8 @@
 from collections import Counter
 import pandas as pd
 
+from configs.dataset.common_config import DatasetFiles, DatasetPaths
+
 
 GENRE_GROUPS = {
     "rock": {
@@ -80,7 +82,7 @@ def extract_tags(row: str) -> list[str]:
     ]
 
 
-df = pd.read_csv("data/interim/track_metadata.csv")
+df = pd.read_csv(str(DatasetPaths.INTERIM_DIR / DatasetFiles.GENRE_METADATA_CSV))
 genre_counter = Counter()
 
 for tags_string in df["artist_terms"]:

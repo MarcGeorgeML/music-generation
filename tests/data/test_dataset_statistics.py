@@ -1,11 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-import sys
-
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'src'))
 
 from music_generation.data.dataset_statistics import default_config, generate_dataset_statistics
 

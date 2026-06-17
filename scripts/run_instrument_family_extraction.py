@@ -1,17 +1,18 @@
 # uv run python scripts/run_instrument_family_extraction.py
 
-from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
 
 from music_generation.data.instrument_family_extractor import InstrumentFamilyExtractor
+from configs.dataset.common_config import DatasetPaths, DatasetFiles
+
 
 
 def main() -> None:
 
-    track_metadata_path = Path("data/interim/track_metadata.csv")
-    validation_path = Path("data/interim/midi_validation_results.csv")
-    output_path = Path("data/interim/instrument_families.csv")
+    track_metadata_path = (DatasetPaths.INTERIM_DIR/ DatasetFiles.TRACK_METADATA_CSV)
+    validation_path = (DatasetPaths.INTERIM_DIR/ DatasetFiles.MIDI_VALIDATION_CSV)
+    output_path = (DatasetPaths.INTERIM_DIR/ DatasetFiles.INSTRUMENT_FAMILIES_CSV)
 
     track_metadata = pd.read_csv(track_metadata_path)
     validation = pd.read_csv(validation_path)
